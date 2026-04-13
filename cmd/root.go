@@ -21,10 +21,12 @@ var rootCmd = &cobra.Command{
 	Use:   "commitgen",
 	Short: "Generate commits based on changes made in the project",
 	Long:  `Commit generator helps you to generate commits using the conventional commit pattern. It uses an LLM to generate the commit for you to review`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		opts := generator.Options{Language: language, Model: model}
 		err := generator.Run(opts)
-		return err
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 

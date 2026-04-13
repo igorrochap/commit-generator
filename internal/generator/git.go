@@ -2,6 +2,7 @@ package generator
 
 import (
 	"errors"
+	"fmt"
 	"os/exec"
 )
 
@@ -11,9 +12,10 @@ func GetDiff() (string, error) {
 		return "", err
 	}
 
+	addAllChanges(staging)
+
 	if !staging {
-		addCmd := exec.Command("git", "add", ".")
-		addCmd.Run()
+		return "", fmt.Errorf("There is no changes to commit")
 	}
 
 	var diff string
@@ -40,4 +42,11 @@ func haveStagingChanges() (bool, error) {
 		return false, err
 	}
 	return false, nil
+}
+
+func addAllChanges(staging bool) {
+	if !staging {
+		addCmd := exec.Command("git", "add", ".")
+		addCmd.Run()
+	}
 }

@@ -2,12 +2,13 @@ package generator
 
 import (
 	"bytes"
-	"github.com/igorrochap/commit-generator/internal/loading"
-	"github.com/igorrochap/commit-generator/internal/prompts"
-	"github.com/igorrochap/commit-generator/internal/selection"
 	"fmt"
 	"os/exec"
 	"text/template"
+
+	"github.com/igorrochap/commit-generator/internal/loading"
+	"github.com/igorrochap/commit-generator/internal/prompts"
+	"github.com/igorrochap/commit-generator/internal/selection"
 )
 
 type Options struct {
@@ -53,8 +54,7 @@ func selectOption(tmpl *template.Template, diff string, model string) error {
 		}
 		switch result.Choice {
 		case selection.Accept:
-			//TODO: run commit
-			fmt.Println("Commit <id> created")
+			makeCommit(commit)
 			end = true
 		case selection.Edit:
 			//TODO: edit commit
@@ -85,4 +85,19 @@ func generateCommit(tmpl *template.Template, diff string, model string) (string,
 		return "", err
 	}
 	return string(out), nil
+}
+
+func makeCommit(commit string) error {
+	commitCmd := exec.Command("git", "commit", "-m", commit)
+	err := commitCmd.Run()
+	if err != nil {
+		return err
+	}
+	getIdCmd := exec.Command("git", "rev-parse", "--short", "HEAD")
+	id, err := getIdCmd.Output()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Commit %s created", string(id))
+	return nil
 }

@@ -47,8 +47,8 @@ func haveStagingChanges() (bool, error) {
 
 func addAllChanges(staging bool) {
 	if !staging {
-		fmt.Println("Adding all changes to the staging")
 		addCmd := exec.Command("git", "add", ".")
 		addCmd.Run()
+		fmt.Println("Added all changes to staging")
 	}
 }

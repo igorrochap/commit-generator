@@ -25,7 +25,7 @@ var rootCmd = &cobra.Command{
 		opts := generator.Options{Language: language, Model: model}
 		err := generator.Run(opts)
 		if err != nil {
-			fmt.Printf("error: %v", err)
+			fmt.Printf("error: %v\n", err)
 		}
 	},
 }

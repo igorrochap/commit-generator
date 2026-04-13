@@ -3,6 +3,7 @@ package generator
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -61,8 +62,11 @@ func selectOption(tmpl *template.Template, diff string, model string) error {
 			makeCommit(commit)
 			end = true
 		case selection.Edit:
-			//TODO: edit commit
-			fmt.Println("Editing commit message")
+			updatedCommit, err := edit(commit)
+			if err != nil {
+				return err
+			}
+			makeCommit(updatedCommit)
 			end = true
 		}
 	}
@@ -105,4 +109,39 @@ func makeCommit(commit string) error {
 	}
 	fmt.Printf("Commit %s created\n", strings.TrimSpace(string(id)))
 	return nil
+}
+
+func edit(commit string) (string, error) {
+	tmp, err := os.CreateTemp("", "commit-*.txt")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(tmp.Name())
+	if _, err := tmp.WriteString(commit); err != nil {
+		return "", err
+	}
+	tmp.Close()
+
+	editor := os.Getenv("EDITOR")
+	if editor == "" {
+		if _, err := exec.LookPath("nano"); err == nil {
+			editor = "nano"
+		} else {
+			editor = "vim"
+		}
+	}
+
+	editCmd := exec.Command(editor, tmp.Name())
+	editCmd.Stdin = os.Stdin
+	editCmd.Stdout = os.Stdout
+	editCmd.Stderr = os.Stderr
+	if err := editCmd.Run(); err != nil {
+		return "", nil
+	}
+
+	content, err := os.ReadFile(tmp.Name())
+	if err != nil {
+		return "", nil
+	}
+	return strings.TrimSpace(string(content)), nil
 }

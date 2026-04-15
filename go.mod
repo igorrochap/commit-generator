@@ -1,4 +1,4 @@
-module github.com/igorrochap/commit-generator
+module github.com/igorrochap/commitgen
 
 go 1.25.2
 

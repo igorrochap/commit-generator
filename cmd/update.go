@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const modulePath = "github.com/igorrochap/commit-generator"
+const modulePath = "github.com/igorrochap/commitgen"
 
 var updateCmd = &cobra.Command{
 	Use:   "update",

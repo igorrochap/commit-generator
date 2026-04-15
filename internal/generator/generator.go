@@ -9,9 +9,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/igorrochap/commit-generator/internal/loading"
-	"github.com/igorrochap/commit-generator/internal/prompts"
-	"github.com/igorrochap/commit-generator/internal/selection"
+	"github.com/igorrochap/commitgen/internal/loading"
+	"github.com/igorrochap/commitgen/internal/prompts"
+	"github.com/igorrochap/commitgen/internal/selection"
 )
 
 var ansiEscape = regexp.MustCompile(`\x1b\[[0-9;]*[A-Za-z]|\r`)

@@ -1,4 +1,4 @@
-# commit-generator
+# commitgen
 
 A CLI tool that uses a local LLM via [Ollama](https://ollama.com) to generate [Conventional Commits](https://www.conventionalcommits.org) messages from your staged changes.
 
@@ -17,8 +17,8 @@ A CLI tool that uses a local LLM via [Ollama](https://ollama.com) to generate [C
 ## Installation
 
 ```bash
-git clone https://github.com/igorrochap/commit-generator.git
-cd commit-generator
+git clone https://github.com/igorrochap/commitgen.git
+cd commitgen
 ./install.sh
 ```
 
@@ -29,7 +29,7 @@ This builds the binary and installs it to `/usr/local/bin/commitgen`, making it 
 If you have Go installed, you can skip cloning the repo entirely:
 
 ```bash
-go install github.com/igorrochap/commit-generator@latest
+go install github.com/igorrochap/commitgen@latest
 ```
 
 This drops the binary in `$(go env GOPATH)/bin` (usually `~/go/bin`). Make sure that directory is on your `$PATH`.
@@ -42,7 +42,7 @@ Once installed, you can upgrade to the latest version at any time with:
 commitgen update
 ```
 
-Under the hood this runs `go install github.com/igorrochap/commit-generator@latest`, so the `go` toolchain must be on your `$PATH`.
+Under the hood this runs `go install github.com/igorrochap/commitgen@latest`, so the `go` toolchain must be on your `$PATH`.
 
 If you originally installed via `./install.sh` (to `/usr/local/bin`), the fresh binary lands in `$(go env GOPATH)/bin`. `commitgen update` will tell you the exact command to copy it over the system binary.
 

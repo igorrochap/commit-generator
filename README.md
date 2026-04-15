@@ -17,22 +17,20 @@ A CLI tool that uses a local LLM via [Ollama](https://ollama.com) to generate [C
 ## Installation
 
 ```bash
+go install github.com/igorrochap/commitgen@latest
+```
+
+This drops the binary in `$(go env GOPATH)/bin` (usually `~/go/bin`). Make sure that directory is on your `$PATH`.
+
+### Alternative: build from source
+
+```bash
 git clone https://github.com/igorrochap/commitgen.git
 cd commitgen
 ./install.sh
 ```
 
-This builds the binary and installs it to `/usr/local/bin/commitgen`, making it available anywhere on your machine.
-
-### Alternative: install with `go install`
-
-If you have Go installed, you can skip cloning the repo entirely:
-
-```bash
-go install github.com/igorrochap/commitgen@latest
-```
-
-This drops the binary in `$(go env GOPATH)/bin` (usually `~/go/bin`). Make sure that directory is on your `$PATH`.
+This builds the binary and installs it to `/usr/local/bin/commitgen`.
 
 ## Updating
 

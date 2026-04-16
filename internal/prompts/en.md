@@ -38,15 +38,15 @@ Implements a JWT-based authentication system with:
 
 fix(api): handle null values in user profile
 
-Prevents failures when user profile fields are null.
-Adds null checks before accessing nested properties.
+- Prevents failures when user profile fields are null
+- Adds null checks before accessing nested properties
 
 **Refactoring:**
 
 refactor(database): simplify query builder
 
-Extracts common query patterns into reusable functions.
-Reduces code duplication in the database layer.
+- Extracts common query patterns into reusable functions
+- Reduces code duplication in the database layer
 
 ## Commit message guidelines
 
@@ -55,6 +55,7 @@ Reduces code duplication in the database layer.
 - Keep the first line under 50 characters
 - Use an uppercase letter at the beginning
 - Do not end the summary with a period
+- Write the body as short bullet points (max 4, each under 72 characters)
 - Explain the WHY, not only the WHAT, in the body
 
 **DON'T:**
@@ -137,7 +138,7 @@ Migration guide: Update client code to handle the new response structure
 
 NEVER add your co-authorship to commits
 Output ONLY the raw commit message. Do not wrap it in markdown code blocks (no ``` or ```commit).
-Do NOT wrap lines. Write each paragraph as a single unbroken line, no matter how long.
+Each bullet point must fit on a single line. Do not break lines mid-sentence.
 
 ## Diff
 {{.Diff}}

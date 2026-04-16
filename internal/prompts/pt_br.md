@@ -38,15 +38,15 @@ Implementa sistema de autenticação baseado em JWT com:
 
 fix(api): trata valores nulos no perfil do usuário
 
-Evita falhas quando campos do perfil do usuário são nulos.
-Adiciona verificações de null antes de acessar propriedades aninhadas.
+- Evita falhas quando campos do perfil do usuário são nulos
+- Adiciona verificações de null antes de acessar propriedades aninhadas
 
 **Refatoração:**
 
 refactor(database): simplifica query builder
 
-Extrai padrões comuns de queries para funções reutilizáveis.
-Reduz duplicação de código na camada de banco de dados.
+- Extrai padrões comuns de queries para funções reutilizáveis
+- Reduz duplicação de código na camada de banco de dados
 
 ## Diretrizes para mensagens de commit
 
@@ -55,6 +55,7 @@ Reduz duplicação de código na camada de banco de dados.
 - Mantenha a primeira linha com menos de 50 caracteres
 - Use letra maiúscula no início
 - Não use ponto final no resumo
+- Escreva o corpo como bullet points curtos (máx. 4, cada um com até 72 caracteres)
 - Explique o PORQUÊ, não apenas o O QUÊ, no corpo
 
 **NÃO FAÇA:**
@@ -139,7 +140,7 @@ Guia de migração: Atualize o código do cliente para lidar com a nova estrutur
 
 NUNCA adicione sua coautoria nos commits
 Retorne APENAS a mensagem de commit pura. Não envolva em blocos de código markdown (sem ``` ou ```commit).
-NÃO quebre linhas. Escreva cada parágrafo como uma única linha contínua, independente do tamanho.
+Cada bullet point deve caber em uma única linha. Não quebre linhas no meio de uma frase.
 
 ## Diff
 {{.Diff}}

@@ -16,28 +16,40 @@ import (
 
 var ansiEscape = regexp.MustCompile(`\x1b\[[0-9;]*[A-Za-z]|\r`)
 
-// lineWrapBoundary matches a word at the end of a line followed by the first
-// word of the next line, so we can detect LLM line-wrap artifacts in the
-// replacement function (RE2 has no backreference support).
-var lineWrapBoundary = regexp.MustCompile(`(\w+)[ \t]*\n(\w+)`)
+var (
+	lineEndWord   = regexp.MustCompile(`([\p{L}\p{N}_]+)[ \t]*$`)
+	lineStartWord = regexp.MustCompile(`^([\p{L}\p{N}_]+)`)
+)
 
-// removeLineWrapArtifacts strips the repeated-word artifact produced by LLMs
-// that hard-wrap at ~80 chars, e.g. "output form\nformatting." → "output formatting."
-func removeLineWrapArtifacts(s string) string {
-	return lineWrapBoundary.ReplaceAllStringFunc(s, func(match string) string {
-		parts := lineWrapBoundary.FindStringSubmatch(match)
-		if len(parts) < 3 {
-			return match
+// unwrapLines joins soft line breaks within paragraphs.
+// Mid-word duplicates (e.g. "internationalizatio\ninternationalization") are
+// collapsed into the full word. Clean word-boundary wraps are joined with a
+// space. Paragraph breaks (\n\n) and list item lines (-, *, +) are preserved.
+func unwrapLines(s string) string {
+	paragraphs := strings.Split(s, "\n\n")
+	for i, p := range paragraphs {
+		lines := strings.Split(p, "\n")
+		if len(lines) <= 1 {
+			continue
 		}
-		endWord, startWord := parts[1], parts[2]
-		if len(endWord) < 2 {
-			return match
+		result := lines[0]
+		for _, line := range lines[1:] {
+			trimmed := strings.TrimLeft(line, " \t")
+			if len(trimmed) > 0 && (trimmed[0] == '-' || trimmed[0] == '*' || trimmed[0] == '+') {
+				result += "\n" + line
+				continue
+			}
+			endMatch := lineEndWord.FindStringSubmatch(result)
+			startMatch := lineStartWord.FindStringSubmatch(trimmed)
+			if len(endMatch) > 1 && len(startMatch) > 1 && strings.HasPrefix(startMatch[1], endMatch[1]) {
+				result = result[:len(result)-len(endMatch[1])] + trimmed
+			} else {
+				result += " " + trimmed
+			}
 		}
-		if strings.HasPrefix(startWord, endWord) {
-			return startWord
-		}
-		return match
-	})
+		paragraphs[i] = result
+	}
+	return strings.Join(paragraphs, "\n\n")
 }
 
 type Options struct {
@@ -117,7 +129,7 @@ func generateCommit(tmpl *template.Template, diff string, model string) (string,
 		return "", err
 	}
 	clean := ansiEscape.ReplaceAllString(string(out), "")
-	clean = removeLineWrapArtifacts(clean)
+	clean = unwrapLines(clean)
 	return strings.TrimSpace(clean), nil
 }
 

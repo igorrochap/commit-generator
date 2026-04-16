@@ -16,6 +16,30 @@ import (
 
 var ansiEscape = regexp.MustCompile(`\x1b\[[0-9;]*[A-Za-z]|\r`)
 
+// lineWrapBoundary matches a word at the end of a line followed by the first
+// word of the next line, so we can detect LLM line-wrap artifacts in the
+// replacement function (RE2 has no backreference support).
+var lineWrapBoundary = regexp.MustCompile(`(\w+)[ \t]*\n(\w+)`)
+
+// removeLineWrapArtifacts strips the repeated-word artifact produced by LLMs
+// that hard-wrap at ~80 chars, e.g. "output form\nformatting." → "output formatting."
+func removeLineWrapArtifacts(s string) string {
+	return lineWrapBoundary.ReplaceAllStringFunc(s, func(match string) string {
+		parts := lineWrapBoundary.FindStringSubmatch(match)
+		if len(parts) < 3 {
+			return match
+		}
+		endWord, startWord := parts[1], parts[2]
+		if len(endWord) < 2 {
+			return match
+		}
+		if strings.HasPrefix(startWord, endWord) {
+			return startWord
+		}
+		return match
+	})
+}
+
 type Options struct {
 	Language string
 	Model    string
@@ -93,6 +117,7 @@ func generateCommit(tmpl *template.Template, diff string, model string) (string,
 		return "", err
 	}
 	clean := ansiEscape.ReplaceAllString(string(out), "")
+	clean = removeLineWrapArtifacts(clean)
 	return strings.TrimSpace(clean), nil
 }
 

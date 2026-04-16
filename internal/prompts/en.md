@@ -137,6 +137,7 @@ Migration guide: Update client code to handle the new response structure
 
 NEVER add your co-authorship to commits
 Output ONLY the raw commit message. Do not wrap it in markdown code blocks (no ``` or ```commit).
+Do NOT wrap lines. Write each paragraph as a single unbroken line, no matter how long.
 
 ## Diff
 {{.Diff}}

@@ -1,0 +1,28 @@
+[project]
+name = “commitgen”
+version = “0.1.2”
+
+[tool.setuptools]
+packages = []
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+branch = "main"
+upload_to_pypi = false
+build_command = ""
+tag_format = "v{version}"
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = ["feat", "fix", "perf", "refactor", "chore", "docs", "style", "test", "ci", "build", "revert"]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]
+
+[tool.semantic_release.changelog]
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"
+exclude_commit_patterns = [
+  "^chore\\(release\\)",
+]
+
+[tool.semantic_release.remote]
+type = "github"

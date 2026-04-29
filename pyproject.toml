@@ -10,7 +10,7 @@ version_toml = ["pyproject.toml:project.version"]
 branch = "main"
 upload_to_pypi = false
 build_command = ""
-tag_format = "v{{version}}"
+tag_format = "v{version}"
 
 [tool.semantic_release.commit_parser_options]
 allowed_tags = ["feat", "fix", "perf", "refactor", "chore", "docs", "style", "test", "ci", "build", "revert"]

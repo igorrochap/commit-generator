@@ -1,6 +1,6 @@
 [project]
 name = "commitgen"
-version = “0.1.2”
+version = "0.1.2"
 
 [tool.setuptools]
 packages = []
@@ -9,7 +9,7 @@ packages = []
 version_toml = ["pyproject.toml:project.version"]
 branch = "main"
 upload_to_pypi = false
-build_command = ""
+build_command = "
 tag_format = "v{{version}}"
 
 [tool.semantic_release.commit_parser_options]

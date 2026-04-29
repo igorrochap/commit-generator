@@ -2,7 +2,10 @@ package generator
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"regexp"
@@ -109,26 +112,118 @@ func selectOption(tmpl *template.Template, diff string, model string) error {
 	return nil
 }
 
+type ollamaRequest struct {
+	Model  string `json:"model"`
+	Prompt string `json:"prompt"`
+	Stream bool   `json:"stream"`
+	Think  bool   `json:"think"`
+}
+
+type ollamaStreamChunk struct {
+	Response string `json:"response"`
+	Done     bool   `json:"done"`
+	Error    string `json:"error"`
+}
+
+// modelContextLength queries ollama for the model's context window size.
+// Returns 0 on failure so the caller can apply a fallback.
+func modelContextLength(model string) int {
+	body, _ := json.Marshal(map[string]string{"name": model})
+	resp, err := http.Post("http://localhost:11434/api/show", "application/json", bytes.NewReader(body))
+	if err != nil {
+		return 0
+	}
+	defer resp.Body.Close()
+	var info struct {
+		ModelInfo map[string]any `json:"model_info"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {
+		return 0
+	}
+	for _, key := range []string{"llama.context_length", "context_length"} {
+		if v, ok := info.ModelInfo[key]; ok {
+			if f, ok := v.(float64); ok {
+				return int(f)
+			}
+		}
+	}
+	return 0
+}
+
+func truncateDiff(diff, model, promptTemplate string) string {
+	contextLen := modelContextLength(model)
+	if contextLen == 0 {
+		contextLen = 131072
+	}
+	// conservative: 3 chars/token, reserve space for prompt template
+	maxChars := contextLen*3 - len(promptTemplate)
+	if maxChars < 1000 {
+		maxChars = 1000
+	}
+	if len(diff) <= maxChars {
+		return diff
+	}
+	fmt.Fprintf(os.Stderr, "warning: diff truncated (%d → %d chars) to fit model context\n", len(diff), maxChars)
+	return diff[:maxChars]
+}
+
 func generateCommit(tmpl *template.Template, diff string, model string) (string, error) {
+	var templateBuf bytes.Buffer
+	if err := tmpl.Execute(&templateBuf, map[string]string{"Diff": ""}); err != nil {
+		return "", err
+	}
+	diff = truncateDiff(diff, model, templateBuf.String())
+
 	var buf bytes.Buffer
-	err := tmpl.Execute(&buf, map[string]string{"Diff": diff})
+	if err := tmpl.Execute(&buf, map[string]string{"Diff": diff}); err != nil {
+		return "", err
+	}
+
+	body, err := json.Marshal(ollamaRequest{
+		Model:  model,
+		Prompt: buf.String(),
+		Stream: true,
+		Think:  false,
+	})
 	if err != nil {
 		return "", err
 	}
-	cmd := exec.Command("ollama", "run", model, "--hidethinking")
-	cmd.Stdin = &buf
 
 	done := make(chan struct{})
-
 	wait := loading.Start(done)
-	out, err := cmd.Output()
+
+	resp, err := http.Post("http://localhost:11434/api/generate", "application/json", bytes.NewReader(body))
+
 	close(done)
 	wait()
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("ollama: %w", err)
 	}
-	clean := ansiEscape.ReplaceAllString(string(out), "")
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("ollama: %s", strings.TrimSpace(string(b)))
+	}
+
+	var result strings.Builder
+	decoder := json.NewDecoder(resp.Body)
+	for {
+		var chunk ollamaStreamChunk
+		if err := decoder.Decode(&chunk); err != nil {
+			break
+		}
+		if chunk.Error != "" {
+			return "", fmt.Errorf("ollama: %s", chunk.Error)
+		}
+		result.WriteString(chunk.Response)
+		if chunk.Done {
+			break
+		}
+	}
+
+	clean := ansiEscape.ReplaceAllString(result.String(), "")
 	clean = unwrapLines(clean)
 	return strings.TrimSpace(clean), nil
 }

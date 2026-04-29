@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.1 (2026-04-29)
+
+### Bug Fixes
+
+- **generator**: Replace ollama CLI with HTTP API to handle diffs with forward slashes
+  ([`9078b50`](https://github.com/igorrochap/commitgen/commit/9078b509c0118cb44c0fa8be9a7f55c823f60c71))
+
+
 ## v1.0.0 (2026-04-29)
 
 ### Bug Fixes

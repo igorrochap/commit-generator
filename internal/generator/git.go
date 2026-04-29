@@ -11,12 +11,8 @@ func GetDiff() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	addAllChanges(staging)
-
-	staging, err = haveStagingChanges()
 	if !staging {
-		return "", fmt.Errorf("There is no changes to commit")
+		return "", fmt.Errorf("There is not staged changes. Please add the files you want to commit and run commitgen again.")
 	}
 
 	var diff string
@@ -43,12 +39,4 @@ func haveStagingChanges() (bool, error) {
 		return false, err
 	}
 	return false, nil
-}
-
-func addAllChanges(staging bool) {
-	if !staging {
-		addCmd := exec.Command("git", "add", ".")
-		addCmd.Run()
-		fmt.Println("Added all changes to staging")
-	}
 }

@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.1.0 (2026-04-29)
+
+### Chores
+
+- **cli**: Update default Ollama model
+  ([`0882f71`](https://github.com/igorrochap/commitgen/commit/0882f71841b00d3ab24b739e18cf1afcafa332d0))
+
+### Features
+
+- **git**: Stop automatically staging changes
+  ([`87edb28`](https://github.com/igorrochap/commitgen/commit/87edb28fcc491ca6e297389ca098cc6f390f6d00))
+
+
 ## v1.0.1 (2026-04-29)
 
 ### Bug Fixes

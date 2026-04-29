@@ -42,5 +42,5 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().StringVar(&language, "language", "en", "Commit language")
-	rootCmd.Flags().StringVar(&model, "model", "gemma4:31b-cloud", "Ollama model")
+	rootCmd.Flags().StringVar(&model, "model", "gemini-3-flash-preview", "Ollama model")
 }
